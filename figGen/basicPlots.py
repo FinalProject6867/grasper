@@ -7,7 +7,7 @@ from ss_plotting.make_plots import plot
 
 def readCSV(filename):
     dataStorage = []
-    with open('data/{}.csv'.format(filename), 'rb') as csvfile:
+    with open('data/inception_net/{}.csv'.format(filename), 'rb') as csvfile:
         datareader = csv.reader(csvfile, delimiter=' ', quotechar='|')
         for row in datareader:
             pieces = row[0].split(',')
@@ -26,8 +26,8 @@ def plotAccuracy(train, val):
           plot_xlabel='Number of Steps',
           plot_ylabel='Accuracy',
           #savefile_size=(2.5, 1.5),
-          #plot_title='Evolution of Weight Vector',
-          savefile='figs/accuracy.pdf')
+          plot_title='Accuracy using Inception Net',
+          savefile='figs/inception_accuracy.pdf')
 
 def plotLoss(train, val):
     plot([[train[:, 1], train[:, 2]], 
@@ -37,7 +37,8 @@ def plotLoss(train, val):
           show_plot=False,
           plot_xlabel='Number of Steps', 
           plot_ylabel='Loss',
-          savefile='figs/loss.pdf')
+          plot_title='Loss using Inception Net',
+          savefile='figs/inception_loss.pdf')
 
 if __name__ == '__main__':
     train_acc = readCSV('train_acc')
