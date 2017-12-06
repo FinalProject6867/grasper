@@ -1,7 +1,7 @@
 #/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import numpy, random
+import numpy, random, os
 import matplotlib.pyplot as plt
 
 def generateDataPoint(pt_num):
@@ -20,13 +20,12 @@ def generateDataPoint(pt_num):
  
     return (depth_edit, hand_pose, grasp_metric)
 
-def generateRandom(count, threshold):
+def generateRandom(count, threshold, num_set):
     # number of files: 6728
     # they each have 1000. but last one has 850
     # so 6727*1000 + 850 data points
     total_pts = 6727*1000 + 850
     ptsList = range(total_pts)
-    random.shuffle(ptsList)
 
     all_depth = numpy.zeros((count, 32, 32))
     all_hand = numpy.zeros((count, 7))
@@ -37,14 +36,14 @@ def generateRandom(count, threshold):
     negativeCount = 0
     desiredSplit = count / 2
     addPt = False
-    i = 0
     j = 0
     
     while j < count:
-        # Do randomized repeated sampling
         addPt = False
-        print 'Processing {}th data point ..'.format(i),
-        depth, hand, grasp = generateDataPoint(ptsList[i])
+        print 'Trying for {}th data point ..'.format(j),
+        # Repeat random sampling..
+        idx = numpy.random.choice(ptsList, 1)[0]
+        depth, hand, grasp = generateDataPoint(idx)
         if grasp > threshold:
             positiveCount += 1
             if positiveCount <= desiredSplit:
@@ -59,22 +58,25 @@ def generateRandom(count, threshold):
             all_depth[j] = depth
             all_hand[j] = hand
             all_grasp[j] = grasp
-            all_pts[j] = ptsList[i]
+            all_pts[j] = idx
             j += 1
         else:
             print 'skipping!'
 
-        i += 1
-
-    print 'Processed {} negatives and {} positives'.format(negativeCount, positiveCount)
-    #TODO more specific file names
-    numpy.save('dexnet_data/depth.npy', all_depth)
-    numpy.save('dexnet_data/hand_pose.npy', all_hand)
-    numpy.save('dexnet_data/grasp_metric.npy', all_grasp)
-    numpy.save('dexnet_data/point_order.npy', all_pts)
+    folder_name = 'dexnet_data/balanced_classify_{}_set{}/'.format(count, num_set)
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    numpy.save('{}/depth.npy'.format(folder_name), all_depth)
+    numpy.save('{}/hand_pose.npy'.format(folder_name), all_hand)
+    numpy.save('{}/grasp_metric.npy'.format(folder_name), all_grasp)
+    numpy.save('{}/point_order.npy'.format(folder_name), all_pts)
+    with open('{}/ratio.txt'.format(folder_name), 'w') as text_file:
+        ratios = 'Processed {} negatives and {} positives'.format(negativeCount, positiveCount) 
+        text_file.write(ratios)
 
 if __name__ == '__main__':
-    #TODO correct path
-    dirpath = '../../3dnet_kit_06_13_17/'
+    dirpath = '/media/rachelholladay/Planck/ml_project/3dnet_kit_06_13_17/'
     thresholdVal = 0.002
-    generateRandom(10000, thresholdVal)
+    numPts = 10000
+    for i in xrange(3):
+        generateRandom(numPts, thresholdVal, i)
