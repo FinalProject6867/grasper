@@ -19,7 +19,7 @@ def BuildModel():
 
     l = 14*14
     input_depths = Input(shape=(32, 32, 1))
-    input_pose = Input(shape=(4,))
+    input_pose = Input(shape=(1,))
 
     x1 = Conv2D(20, (5,5), padding='valid')(input_depths)
     x1 = LeakyReLU()(x1)
