@@ -1,16 +1,20 @@
 import numpy as np
 from keras.callbacks import TensorBoard
 from sklearn.model_selection import train_test_split
-from dex_resnet import BuildModel
+#from dex_resnet import BuildModel
+#from dexnet_inception import BuildModel
+from models.andreas_net import BuildModel
 from keras.utils import to_categorical
 
+
 def load_data():
-    depth_maps = np.load('dexnet_data/depth.npy')
-    hand_poses = np.load('dexnet_data/hand_pose.npy')
+    root_path  = 'data/dexnet_data/archive/milestone_data'
+    depth_maps = np.load(root_path+'/depth.npy')
+    hand_poses = np.load(root_path+'/hand_pose.npy')
     n, _, _ = depth_maps.shape
     indexes = np.arange(0, n)
     
-    labels = np.load('dexnet_data/grasp_metric.npy')
+    labels = np.load('data/dexnet_data/grasp_metric.npy')
     labels[labels >= 0.002] = 1
     labels[labels < 0.002] = 0
 
@@ -18,8 +22,8 @@ def load_data():
     x_traini, x_testi, y_train, y_test = train_test_split(indexes, labels, test_size=0.10)
     x_train_maps =  np.expand_dims(depth_maps[x_traini, :, :], axis=-1)
     x_test_maps = np.expand_dims(depth_maps[x_testi, :, :], axis=-1)
-    x_train_poses = np.squeeze(hand_poses[x_traini, :])
-    x_test_poses = np.squeeze(hand_poses[x_testi, :])
+    x_train_poses = np.squeeze(hand_poses[x_traini, :4])
+    x_test_poses = np.squeeze(hand_poses[x_testi, :4])
     
     return x_train_maps, x_train_poses, y_train, x_test_maps, x_test_poses, y_test
 
