@@ -13,14 +13,14 @@ def plot_confusion_matrix(cm, classes,
     Normalization can be applied by setting `normalize=True`.
     """
     norm_cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-    plt.imshow(norm_cm, interpolation='nearest', cmap=cmap)
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
     plt.xticks(tick_marks, classes) #, rotation=45)
     plt.yticks(tick_marks, classes)
 
-    thresh = norm_cm.max() / 2.
+    thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
         reg = format(cm[i, j], 'd')
         norm = format(norm_cm[i, j], '.2f')
@@ -36,12 +36,13 @@ def plot_confusion_matrix(cm, classes,
 # Compute confusion matrix
 #np.set_printoptions(precision=2)
 
-cnf_matrix = np.array([[0, 17706], [0, 152664]])
+cnf_matrix = np.array([[4507, 0], [4493, 0]])
+#np.array([[0, 1650], [0, 7350]])
 class_names = ['Success', 'Failure']
 
 # Plot non-normalized confusion matrix
 plt.figure()
 plot_confusion_matrix(cnf_matrix, classes=class_names, title='')
-plt.savefig("unbalanced_paper.pdf")
+plt.savefig("balanced_results.pdf")
 
 plt.show()
